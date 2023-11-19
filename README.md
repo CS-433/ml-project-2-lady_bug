@@ -1,2 +1,27 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/fEFF99tU)
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-718a45dd9cf7e7f842a935f5ebbe5719a5e09af4491e668f4dbf3b35d5cca122.svg)](https://classroom.github.com/online_ide?assignment_repo_id=12916899&assignment_repo_type=AssignmentRepo)
+# ML4Science Project
+
+Train PINN for the cosmic epoch of reionization:
+- Implement the Hydrogen ODE in a FCNN for EoR simulations
+- The ODE for HII fraction: $\frac{dx}{dt} = (1 - x)(\Gamma + n_e C_H) - xn_e\alpha_H$
+
+#### Deliverables
+- Written report: max 4 pages
+- Code: in Pytorch
+    * Results reproducibility
+    * External libraries citations
+
+#### Timeline
+Week 1: (16 Nov)
+- Intro and first data analysis
+
+Week 2-4: (23, 30 Nov and 7 Dec)
+- Weekly updates presented by one student
+
+Week 5: (14 Dec)
+- Finalise the results start writing the report
+
+Week 6: (18 Dec)
+- Finalise the report (plots, text, review report, etc.)
+
+## Codebase structure
+To be done
