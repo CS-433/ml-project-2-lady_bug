@@ -1,12 +1,13 @@
 import torch
 from torch import nn
 
+
 class FCN(torch.nn.Module):
     """Defines a fully connected network"""
-    
+
     def __init__(self, module_dims, activation=nn.ReLU):
         """
-        Construct FCN, 
+        Construct FCN,
         module_dims is a list with input dimension, hidden dimensions and output dimension
         activation specifies the activation function
         """
@@ -18,8 +19,7 @@ class FCN(torch.nn.Module):
                 modules.append(activation())
 
         self.fcn = nn.Sequential(*modules)
-        
-        
+
     def forward(self, x):
         x = self.fcn(x)
         return x

@@ -12,7 +12,8 @@ class DataHandler:
     def __init__(self, x, y):
         self.x, self.y = x, y
         self.x_data, self.y_data = self.__get_data_for_training()
-        self.dataloader = [(self.x_data, self.y_data, self.__get_x_physics())]
+        self.dataloader =DataLoader(list(zip(self.x_data, self.y_data)), batch_size=1000, shuffle=True)
+        self.x_physics = self.__get_x_physics()
 
     def __get_data_for_training(self, end=40, step=4):
         x_data = self.x[0:end:step]
@@ -68,15 +69,13 @@ class Run:
             plt.close()
 
     def __step(self):
-        for x_data, y_data, x_physics in self.data_handler.dataloader:
-            index = torch.randperm(len(x_data))
-            x_data, y_data = x_data[index], y_data[index]
+        for x_data, y_data in self.data_handler.dataloader:
             self.optimizer.zero_grad()
 
             yh = self.model(x_data)
-            y_physics = self.model(x_physics)
+            y_physics = self.model(self.data_handler.x_physics)
 
-            loss = self.loss(yh, y_data, x_physics, y_physics)
+            loss = self.loss(yh, y_data, self.data_handler.x_physics, y_physics)
             loss.backward()
 
             self.optimizer.step()
