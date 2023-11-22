@@ -12,7 +12,7 @@ class DataHandler:
     def __init__(self, x, y):
         self.x, self.y = x, y
         self.x_data, self.y_data = self.__get_data_for_training()
-        self.dataloader =DataLoader(list(zip(self.x_data, self.y_data)), batch_size=1000, shuffle=True)
+        self.dataloader = [(self.x_data, self.y_data)]
         self.x_physics = self.__get_x_physics()
 
     def __get_data_for_training(self, end=40, step=4):
