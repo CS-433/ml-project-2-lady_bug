@@ -16,7 +16,7 @@ def create_gif(outfile, files, fps=5, loop=0):
 
 
 def plot_result(x, y, x_data, y_data, yh, xp=None, i=None):
-    plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(8, 4))
     plt.plot(x, y, color="grey", linewidth=2, alpha=0.8, label="Exact solution")
     plt.plot(
         x,
@@ -40,7 +40,7 @@ def plot_result(x, y, x_data, y_data, yh, xp=None, i=None):
         )
     l = plt.legend(loc=(1.01, 0.34), frameon=False, fontsize="large")
     plt.setp(l.get_texts(), color="k")
-    # plt.xlim(-0.05, 1.05)
-    # plt.ylim(-1.1, 1.1)
-    plt.text(1.065, 0.7, "Training step: %d" % i, fontsize="xx-large", color="k")
-    plt.axis("off")
+    if i is not None:
+        plt.text(1.065, 0.7, "Training step: %d" % i, fontsize="xx-large", color="k")
+    # plt.axis("off")
+    return fig
