@@ -19,6 +19,10 @@ class DataHandler:
         self.x, self.y = x, y
         self.x_data, self.y_data = self.__get_data_for_training(data_end, data_step)
 
+        self.x_test, self.y_test = self.__get_data_for_testing(data_end, data_step)
+
+        print(self.x_data.shape, self.x_test.shape)
+
         x_physics = self.__get_x_physics(physics_n)
         if batch_size is None:
             batch_size = len(x_physics)
@@ -33,6 +37,19 @@ class DataHandler:
             step = max(end // 10, 1)
         x_data = self.x[0:end:step]
         y_data = self.y[0:end:step]
+        return x_data, y_data
+    
+    def __get_data_for_testing(self, end=None, step=None):
+        if end is None:
+            end = round(0.2 * len(self.x))
+        if step is None:
+            step = max(end // 10, 1)
+        
+        idx = torch.ones_like(self.x)
+        idx[0:end:step] = 0
+
+        x_data = self.x[idx.bool()].view(-1, 1)
+        y_data = self.y[idx.bool()].view(-1, 1)
         return x_data, y_data
 
     def __get_x_physics(self, n=None):

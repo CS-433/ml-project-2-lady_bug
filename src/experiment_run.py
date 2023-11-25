@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
+from torcheval.metrics.functional import r2_score
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -70,3 +71,7 @@ class Run:
                 yh=yh,
             ),
         )
+
+    def score(self):
+        yh = self.model(self.data_handler.x_test)
+        return r2_score(yh, self.data_handler.y_test)
