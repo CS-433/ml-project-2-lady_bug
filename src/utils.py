@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
 from PIL import Image
 
 
@@ -43,4 +44,11 @@ def plot_result(x, y, x_data, y_data, yh, xp=None, i=None):
     if i is not None:
         plt.text(1.065, 0.7, "Training step: %d" % i, fontsize="xx-large", color="k")
     # plt.axis("off")
+    return fig
+
+def plot_q_q(x, model, y_true):
+    y_true = y_true.detach().numpy()
+    y_pred = model(x).detach().numpy()
+    diff = y_pred - y_true
+    fig = sm.qqplot(diff,fit=True,line='45')
     return fig
