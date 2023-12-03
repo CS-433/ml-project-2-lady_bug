@@ -13,7 +13,7 @@ def cross_validation(
     physics_coef, 
     optimizer=None, 
     scheduler=None, 
-    loss = torch.nn.MSELoss,
+    loss = torch.nn.MSELoss(),
     train_size=2000,
     data_step=20,
     physics_n=None,
@@ -52,7 +52,7 @@ def cross_validation(
 
         run.train(iters)
 
-        r2_scores[i] = run.score.detach().numpy()
+        r2_scores[i] = run.score().detach().numpy()
 
         if print_scores is True:
             print(f"R2 Score on {i} validation fold: {r2_scores[i]:.3f}")
