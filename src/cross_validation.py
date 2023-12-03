@@ -39,8 +39,7 @@ def cross_validation(
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3) if optimizer is None else optimizer
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.8, patience=20,) if scheduler is None else scheduler
 
-        loss_name = "MSE" if loss == torch.nn.MSELoss else "Softsign"
-        run = Run(f"cv/physics_coef{physics_coef}loss{loss_name}_{iters}_iterations/{i}")                  
+        run = Run(f"cv/physics_coef_{physics_coef}_{iters}_iterations/{i}")                  
 
         run.data_handler = DataHandler(x, y, data_start, data_end, data_step, physics_n=physics_n, batch_size=batch_size, shuffle=shuffle)                
         run.model = model
