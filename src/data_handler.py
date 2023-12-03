@@ -22,8 +22,6 @@ class DataHandler:
 
         self.x_test, self.y_test = self.__get_data_for_testing(data_start, data_end, data_step)
 
-        print(self.x_data.shape, self.x_test.shape)
-
         x_physics = self.__get_x_physics(physics_n)
         if batch_size is None:
             batch_size = len(x_physics)
