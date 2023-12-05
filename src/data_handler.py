@@ -62,6 +62,55 @@ class DataHandler:
             torch.linspace(lower_bound, upper_bound, n).view(-1, 1).requires_grad_(True)
         )
         return x_physics
+    
+
+class DataHandlerForAllSimulations():
+    def __init__(
+        self,
+        x,
+        y,
+        data_end=None,
+        data_step=None,
+        physics_step=50,
+        n_simulations=100,
+        train_fraction=0.9,
+        batch_size=1,
+        shuffle=False,
+    ):
+        self.x, self.y = x[:n_simulations], y[:n_simulations]
+        self.n_train_simulations = int(train_fraction * self.x.shape[0])
+        
+        x_train, y_train = self.__get_data_for_training(data_end, data_step)
+        x_physics = self.__get_x_physics(physics_step)
+        x_test, y_test = self.__get_data_for_testing()
+        
+        self.batch_size = batch_size
+
+        self.train_dataloader = DataLoader(
+            list(zip(x_train, y_train, x_physics)), batch_size=self.batch_size, shuffle=shuffle
+        )
+        self.test_dataloader = DataLoader(
+            list(zip(x_test, y_test)), batch_size=self.batch_size, shuffle=shuffle
+        )
+
+    def __get_data_for_training(self, end=None, step=None):
+        if end is None:
+            end = round(0.4 * self.x.shape[1])
+        if step is None:
+            step = max(end // 10, 1)
+        x_data, y_data = self.x[:self.n_train_simulations], self.y[:self.n_train_simulations]
+        x_data = self.x[:, 0:end:step]
+        y_data = self.y[:, 0:end:step]
+        return x_data, y_data
+    
+    def __get_data_for_testing(self):
+        x_data, y_data = self.x[self.n_train_simulations:], self.y[self.n_train_simulations:]
+        return x_data, y_data
+
+    def __get_x_physics(self, step):
+        x_data, y_data = self.x[:self.n_train_simulations], self.y[:self.n_train_simulations]
+        x_data = self.x[:, 0:self.n_train_simulations:step].requires_grad_(True)
+        return x_data
 
 
 class RandomPointsIterator:
