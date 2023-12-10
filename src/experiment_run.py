@@ -117,12 +117,14 @@ class RunAllSimulations:
             if on_epoch_end:
                 self.__track_progress(iter, data_loss, "data_loss")
             loss += data_loss
+            print(data_loss)
         
         if self.physics_loss is not None:
             physics_loss = self.physics_loss(x_physics, y_physics)
             if on_epoch_end:
                 self.__track_progress(iter, physics_loss, "physics_loss")
             loss += physics_loss
+            print(physics_loss)
         
         if on_epoch_end:
             self.__track_progress(iter, loss, "total_loss")
@@ -134,10 +136,14 @@ class RunAllSimulations:
     def train(self, epochs):
         print("Total num of the batches: ", len(self.data_handler.train_dataloader))
         for i in tqdm(range(epochs)):
+            print(i)
             for batch_idx, batch in enumerate(self.data_handler.train_dataloader):
+                """
+                batch is a single simulation -> batch_size = 1, x has shape (batch_size, n_timesteps, feature_dim)
+                where features are (timestep, n, Gamma)
+                """
                 x_train, y_train, x_physics = batch[0][0], batch[1][0], batch[2][0]
                 y_train = y_train.view(-1, 1)
-
                 self.optimizer.zero_grad()
 
                 yh = self.model(x_train)
@@ -157,7 +163,12 @@ class RunAllSimulations:
             # Tensorboard callback for learning rate
             #self.__track_progress(i, float(self.optimizer.param_groups[0]["lr"]), "learning_rate")
 
-    def test(self):
+    def test(self, return_all_runs=False):
+        """
+        For testing we predict approximation for all test simulations and evaluate the quality in terms of r2 score.
+        The simulation with the highest r2 score between prediction and target function is considered "best", 
+        simulation with the lowest r2 score - "worst"
+        """
         r2_per_simulation = []
         yh_array = []
         y_test_array = []
@@ -168,9 +179,13 @@ class RunAllSimulations:
             yh_array.append(yh)
             y_test_array.append(y_test.T)
         
+        
         r2_per_simulation = np.array(r2_per_simulation)
         max_idx = np.argmax(r2_per_simulation)
         min_idx = np.argmin(r2_per_simulation)
         print("R2 best simulation: ", np.max(r2_per_simulation))
         print("R2 worst simulation: ", np.min(r2_per_simulation))
+        # we use return_all_runs if we want to visualize all predictions, otherwise only the best and worst ones are plotted
+        if return_all_runs:
+            return yh_array, y_test_array
         return yh_array[max_idx], y_test_array[max_idx], yh_array[min_idx], y_test_array[min_idx]
