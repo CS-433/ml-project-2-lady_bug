@@ -73,7 +73,7 @@ class WeightedSampler(Sampler):
         """
         self.indices = list(range(len(dataset)))
         self.num_samples = len(dataset)
-        weights = [2. if i in ood_ids else 0. for i in self.indices] # weights are proportional to the frequency of ood runs
+        weights = [2. if i in ood_ids else 1. for i in self.indices] # weights are proportional to the frequency of ood runs
         self.weights = torch.tensor(weights, dtype=torch.double)
         
     def __iter__(self):
