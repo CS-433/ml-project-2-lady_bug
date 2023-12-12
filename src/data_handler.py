@@ -162,7 +162,10 @@ class RandomPointsIterator:
 
     def __iter__(self):
         return self
-
+    
+    def __len__(self):
+        return self.last_idx
+    
     def __next__(self):
         if self.start_idx < self.last_idx:
             x_physics = (
@@ -179,9 +182,9 @@ class RandomPointsIterator:
 
 class RandomSamplingDataHandler(DataHandler):
     def __init__(
-        self, x, y, data_end=None, data_step=None, batch_size=None, shuffle=False
+        self, x, y, data_start=0, data_end=None, data_step=None, physics_n=None, batch_size=None, shuffle=False
     ):
-        super().__init__(x, y, data_end, data_step)
+        super().__init__(x, y, data_start, data_end, data_step)
         self.physics_dataloader = self.__random_points_iterator()
 
     def __random_points_iterator(self, n=None):
