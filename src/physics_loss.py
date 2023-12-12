@@ -9,7 +9,7 @@ def physics_loss_fixed_gamma_n(x, y, gamma, nH, loss_coef=1.):
     dy = torch.autograd.grad(y, x, torch.ones_like(y), create_graph=True)[0]
     
     # compute the physic loss
-    ode = dy - (1 - y) * gamma + ALPHA * nH * y ** 2
+    ode = dy * TIMESTEP_SCALE - (1 - y) * gamma + ALPHA * nH * y ** 2
 
     return loss_coef * torch.mean(ode ** 2)
 

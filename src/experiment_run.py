@@ -32,20 +32,20 @@ class Run:
         if self.data_loss is not None:
             data_loss = self.data_loss(yh, y_data)
             if on_epoch_end:
-                self.__track_progress(iter, data_loss, "data_loss")
+                self.track_progress(iter, data_loss, "data_loss")
             loss += data_loss
         
         if self.physics_loss is not None:
             physics_loss = self.physics_loss( x_physics, y_physics)
             if on_epoch_end:
-                self.__track_progress(iter, physics_loss, "physics_loss")
+                self.track_progress(iter, physics_loss, "physics_loss")
             loss += physics_loss
         
         if on_epoch_end:
-            self.__track_progress(iter, loss, "total_loss")
+            self.track_progress(iter, loss, "total_loss")
         return loss
 
-    def __track_progress(self, iter, variable, variable_name):
+    def track_progress(self, iter, variable, variable_name):
         self.writer.add_scalar(variable_name, variable, iter)
 
     def train(self, epochs):
@@ -71,7 +71,7 @@ class Run:
                     self.scheduler.step(loss.item())
 
             # Tensorboard callback for learning rate
-            self.__track_progress(i, float(self.optimizer.param_groups[0]["lr"]), "learning_rate")
+            self.track_progress(i, float(self.optimizer.param_groups[0]["lr"]), "learning_rate")
         self.__save_img()
 
     def __save_img(self):
@@ -94,49 +94,13 @@ class Run:
         return r2_score(yh, self.data_handler.y_test)
 
 
-class RunAllSimulations:
-    def __init__(self, log_dir, physics_loss_coef):
-        self.data_handler = None
+class RunAllSimulations(Run):
+    def __init__(self, log_dir):
+        super().__init__(log_dir)
 
-        self.model = None
-        self.optimizer = None
-        self.scheduler = None
-
-        self.data_loss = None
-        self.physics_loss_coef = physics_loss_coef
-        self.physics_loss = lambda x, y: physics_loss_varied_gamma_n(x, y, loss_coef=self.physics_loss_coef)
-
-        #self.writer = SummaryWriter("runs/" + log_dir)
-
-    def loss(self, yh, y_data, x_physics, y_physics, on_epoch_end=False, iter=None):
-        loss = 0.0
-        # REMOVE on_epoch_end to enable callbacks
-        on_epoch_end = False
-        if self.data_loss is not None:
-            data_loss = self.data_loss(yh, y_data)
-            if on_epoch_end:
-                self.__track_progress(iter, data_loss, "data_loss")
-            loss += data_loss
-            print(data_loss)
-        
-        if self.physics_loss is not None:
-            physics_loss = self.physics_loss(x_physics, y_physics)
-            if on_epoch_end:
-                self.__track_progress(iter, physics_loss, "physics_loss")
-            loss += physics_loss
-            print(physics_loss)
-        
-        if on_epoch_end:
-            self.__track_progress(iter, loss, "total_loss")
-        return loss
-    
-    def __track_progress(self, iter, variable, variable_name):
-        self.writer.add_scalar(variable_name, variable, iter)
-    
     def train(self, epochs):
         print("Total num of the batches: ", len(self.data_handler.train_dataloader))
         for i in tqdm(range(epochs)):
-            print(i)
             for batch_idx, batch in enumerate(self.data_handler.train_dataloader):
                 """
                 batch is a single simulation -> batch_size = 1, x has shape (batch_size, n_timesteps, feature_dim)
@@ -161,7 +125,7 @@ class RunAllSimulations:
                     self.scheduler.step(loss.item())
 
             # Tensorboard callback for learning rate
-            #self.__track_progress(i, float(self.optimizer.param_groups[0]["lr"]), "learning_rate")
+            self.track_progress(i, float(self.optimizer.param_groups[0]["lr"]), "learning_rate")
 
     def test(self, return_all_runs=False):
         """
@@ -188,4 +152,4 @@ class RunAllSimulations:
         # we use return_all_runs if we want to visualize all predictions, otherwise only the best and worst ones are plotted
         if return_all_runs:
             return yh_array, y_test_array
-        return yh_array[max_idx], y_test_array[max_idx], yh_array[min_idx], y_test_array[min_idx]
+        return r2_per_simulation, yh_array[max_idx], y_test_array[max_idx], yh_array[min_idx], y_test_array[min_idx]

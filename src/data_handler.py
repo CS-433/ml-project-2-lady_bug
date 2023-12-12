@@ -68,13 +68,13 @@ class DataHandler:
 
 class WeightedSampler(Sampler):
     """Custor Sampler for more frequent sampling of out-of-distribution simulations"""
-    def __init__(self, dataset, ood_ids):
+    def __init__(self, dataset, ood_ids, odd_weight=2., normal_weight=1.):
         """
         ood_ids is a set of indices of out-of-distubution simulations
         """
         self.indices = list(range(len(dataset)))
         self.num_samples = len(dataset)
-        weights = [2. if i in ood_ids else 1. for i in self.indices] # weights are proportional to the frequency of ood runs
+        weights = [odd_weight if i in ood_ids else normal_weight for i in self.indices] # weights are proportional to the frequency of ood runs
         self.weights = torch.tensor(weights, dtype=torch.double)
         
     def __iter__(self):
@@ -101,6 +101,8 @@ class DataHandlerForAllSimulations():
         train_fraction=0.9,
         batch_size=1,
         shuffle=False,
+        odd_weight=2.,
+        normal_weight=1.
     ):
         self.x, self.y = x, y
         self.n_train_simulations = int(train_fraction * x.shape[0])
@@ -116,7 +118,7 @@ class DataHandlerForAllSimulations():
 
         if resample_ood_runs:
             ood_ids = self.__get_ood_ids(y_train)
-            ood_sampler = WeightedSampler(train_dataset, ood_ids)
+            ood_sampler = WeightedSampler(train_dataset, ood_ids, odd_weight, normal_weight)
             self.train_dataloader = DataLoader(
                 train_dataset, batch_size=self.batch_size, sampler=ood_sampler, shuffle=shuffle
             )
