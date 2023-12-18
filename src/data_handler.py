@@ -68,13 +68,13 @@ class DataHandler:
 
 class WeightedSampler(Sampler):
     """Custor Sampler for more frequent sampling of out-of-distribution simulations"""
-    def __init__(self, dataset, ood_ids):
+    def __init__(self, dataset, ood_ids, odd_weight=2., normal_weight=1.):
         """
         ood_ids is a set of indices of out-of-distubution simulations
         """
         self.indices = list(range(len(dataset)))
         self.num_samples = len(dataset)
-        weights = [2. if i in ood_ids else 1. for i in self.indices] # weights are proportional to the frequency of ood runs
+        weights = [odd_weight if i in ood_ids else normal_weight for i in self.indices] # weights are proportional to the frequency of ood runs
         self.weights = torch.tensor(weights, dtype=torch.double)
         
     def __iter__(self):
@@ -101,6 +101,8 @@ class DataHandlerForAllSimulations():
         train_fraction=0.9,
         batch_size=1,
         shuffle=False,
+        ood_weight=2.,
+        normal_weight=1.
     ):
         self.x, self.y = x, y
         self.n_train_simulations = int(train_fraction * x.shape[0])
@@ -112,11 +114,19 @@ class DataHandlerForAllSimulations():
         self.batch_size = batch_size
 
         train_dataset = TensorDataset(x_train, y_train, x_physics)
+
+        if ood_weight == 0 or normal_weight == 0: 
+            odd_test_ids = self.__get_ood_ids_test_data(data_end, data_step)
+            include_ids = torch.ones(y_test.shape[0]) * normal_weight
+            include_ids[odd_test_ids] = ood_weight
+            include_ids = include_ids.bool()
+            x_test, y_test = x_test[include_ids], y_test[include_ids]
+
         test_dataset = TensorDataset(x_test, y_test)
 
         if resample_ood_runs:
             ood_ids = self.__get_ood_ids(y_train)
-            ood_sampler = WeightedSampler(train_dataset, ood_ids)
+            ood_sampler = WeightedSampler(train_dataset, ood_ids, ood_weight, normal_weight)
             self.train_dataloader = DataLoader(
                 train_dataset, batch_size=self.batch_size, sampler=ood_sampler, shuffle=shuffle
             )
@@ -142,13 +152,23 @@ class DataHandlerForAllSimulations():
             step = max(end // 20, 1)
         
         x_data, y_data = self.x[:self.n_train_simulations], self.y[:self.n_train_simulations]
-        x_data = self.x[:, 0:end:step]
-        y_data = self.y[:, 0:end:step]
+        x_data = x_data[:, 0:end:step]
+        y_data = y_data[:, 0:end:step]
         return x_data, y_data
+    
+    def __get_ood_ids_test_data(self, end, step):
+        if end is None:
+            end = round(0.4 * self.x.shape[1])
+        if step is None:
+            step = max(end // 20, 1)
+        
+        y_data = self.y[self.n_train_simulations:]
+        y_data = y_data[:, 0:end:step]
+        return list(self.__get_ood_ids(y_data))
 
     def __get_x_physics(self, step, resample_ood_runs=False):
         x_data, y_data = self.x[:self.n_train_simulations], self.y[:self.n_train_simulations]
-        x_data = self.x[:, 0:self.n_train_simulations:step].requires_grad_(True)
+        x_data = x_data[:, 0:self.n_train_simulations:step].requires_grad_(True)
         return x_data
 
 
@@ -162,7 +182,10 @@ class RandomPointsIterator:
 
     def __iter__(self):
         return self
-
+    
+    def __len__(self):
+        return self.last_idx
+    
     def __next__(self):
         if self.start_idx < self.last_idx:
             x_physics = (
@@ -179,9 +202,9 @@ class RandomPointsIterator:
 
 class RandomSamplingDataHandler(DataHandler):
     def __init__(
-        self, x, y, data_end=None, data_step=None, batch_size=None, shuffle=False
+        self, x, y, data_start=0, data_end=None, data_step=None, physics_n=None, batch_size=None, shuffle=False
     ):
-        super().__init__(x, y, data_end, data_step)
+        super().__init__(x, y, data_start, data_end, data_step)
         self.physics_dataloader = self.__random_points_iterator()
 
     def __random_points_iterator(self, n=None):
