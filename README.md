@@ -24,4 +24,4 @@ Week 6: (18 Dec)
 - Finalise the report (plots, text, review report, etc.)
 
 ## Codebase structure
-To be done
+Notebooks `PINN_for_hydrogen_ionization.ipynb` and `test_simulation.ipynb` contain the experiments with different models for the task of predicting hydrogen fraction. Notebook `example_PINN.ipynb` contains the example of PINN. Code for the models, data loading and training is in the `src` folder.
