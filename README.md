@@ -19,6 +19,11 @@ Code for the models, data loading and training is in the `src` folder.
 |`physics_loss.py`  | physics loss functions                                            |
 |`utils.py`         | helpful functions to plot the results                             |
 
+Folder `runs` is for the `Tensorboard` logs.
+
+Folder `weekly_meetings` contains presentations form the weekly meetings with our tutor.
+
+Folder `examples` is for the notebooks that were created during the project but were not the final version.
 
 
 #### Deliverables
