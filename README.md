@@ -37,12 +37,12 @@ Folder `examples` is for the notebooks that were created during the project but 
        - **Pyc2ray**: Hirling P. et al.,2023. pyC^2Ray: A flexible and GPU-accelerated Radiative Transfer Framework for Simulating the Cosmic Epoch of Reionization
 
 ## Data
-Link to train and test simulations:
-- 'test1.npy' contains 2000 train/validation simulations
-- 'params1.txt' contains 2000 pairs of astrophysical parameters, one pair per simulation
-- folder '2-phase-simulation' contains a single test simulation data for the last timestep
-  * 'xHII_z9.026.npy' contains spatial distribution of hydrogen fraction for 300^3 points
-  * 'gamma_z9.026.npy' and 'ngas_z9.026.npy' contains 300^3 corresponding values of astrophysical parameters each
+Link to train and test simulations: https://drive.google.com/drive/folders/1mqI2AYTlcU8xev2cduzI0kI63W1CTsDi?usp=sharing
+- `test1.npy` contains 2000 train/validation simulations
+- `params1.txt` contains 2000 pairs of astrophysical parameters, one pair per simulation
+- folder `2-phase-simulation` contains a single test simulation data for the last timestep
+  * `xHII_z9.026.npy` contains spatial distribution of hydrogen fraction for 300^3 points
+  * `gamma_z9.026.npy` and `ngas_z9.026.npy` contain 300^3 corresponding values of astrophysical parameters each
 
 #### Timeline
 Week 1: (16 Nov)
